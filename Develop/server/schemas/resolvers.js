@@ -3,17 +3,20 @@ const { Book, User } = require('../models');
 const resolvers = {
     // Important for useQuery: The resolver matches the typeDefs entry point and informs the request of the relevant data
     Query: {
-        books: async () => {
-            return Book.find();
+        me: async (parent, args, context) => {
+            if (context.user) {
+                return User.find({ _id: req.context.user._id });
+
+            }
         },
 
-        books: async (parent, { bookId }) => {
-            return Book.findOne({ _id: BookId });
-        },
+        // books: async (parent, { bookId }) => {
+        //     return Book.findOne({ _id: BookId });
+        // },
     },
 
     Mutation: {
-        addProfile: async (parent, { name }) => {
+        saveBook: async (parent, { name }) => {
             return Book.create({ name });
         },
         addUser: async (parent, { bookId, user }) => {
@@ -31,13 +34,12 @@ const resolvers = {
         removeBook: async (parent, { bookId }) => {
             return Book.findOneAndDelete({ _id: bookId });
         },
-        updateUser: async (parent, { bookId, user }) => {
-            return User.findOneAndUpdate(
-                { _id: User.Id },
-                { $pull: { savedBooks: { bookId: params.bookId } } },
-                { new: true }
-            );
-        },
+        // updateUser: async (parent, { bookId, user }) => {
+        //     return User.findOneAndUpdate(
+        //         { _id: User.Id },
+        //         { $pull: { savedBooks: { bookId: params.bookId } } },
+        //         { new: true }
+        //     );
     },
 };
 

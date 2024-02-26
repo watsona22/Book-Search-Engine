@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useQuery } from 'react';
 import {
   Container,
   Card,
@@ -7,9 +7,11 @@ import {
   Col
 } from 'react-bootstrap';
 
-import { getMe, deleteBook } from '../utils/API';
+import { getMe } from '../utils/API';
 import Auth from '../utils/auth';
 import { removeBookId } from '../utils/localStorage';
+// import { useMutation, gql } from '@apollo/client';
+
 
 const SavedBooks = () => {
   const [userData, setUserData] = useState({});
@@ -17,7 +19,7 @@ const SavedBooks = () => {
   // use this to determine if `useEffect()` hook needs to run again
   const userDataLength = Object.keys(userData).length;
 
-  useEffect(() => {
+  useQuery(() => {
     const getUserData = async () => {
       try {
         const token = Auth.loggedIn() ? Auth.getToken() : null;
@@ -49,18 +51,28 @@ const SavedBooks = () => {
     if (!token) {
       return false;
     }
-
     try {
-      const response = await deleteBook(bookId, token);
+      const { data } = await removeBookId({
+        variables: { bookId },
+      });
 
-      if (!response.ok) {
-        throw new Error('something went wrong!');
-      }
-
-      const updatedUser = await response.json();
+      const updatedUser = data.removeBook;
       setUserData(updatedUser);
-      // upon success, remove book's id from localStorage
+
+      // Upon success, remove book's id from localStorage
       removeBookId(bookId);
+
+      // try {
+      //   const response = await removeBookId(bookId, token);
+
+      //   if (!response.ok) {
+      //     throw new Error('something went wrong!');
+      //   }
+
+      //   const updatedUser = await response.json();
+      //   setUserData(updatedUser);
+      //   // upon success, remove book's id from localStorage
+      //   removeBookId(bookId);
     } catch (err) {
       console.error(err);
     }
@@ -73,11 +85,9 @@ const SavedBooks = () => {
 
   return (
     <>
-      <div fluid className="text-light bg-dark p-5">
-        <Container>
-          <h1>Viewing saved books!</h1>
-        </Container>
-      </div>
+      <Container fluid className="text-light bg-dark p-5">
+        <h1>Viewing saved books!</h1>
+      </Container>
       <Container>
         <h2 className='pt-5'>
           {userData.savedBooks.length
@@ -87,8 +97,8 @@ const SavedBooks = () => {
         <Row>
           {userData.savedBooks.map((book) => {
             return (
-              <Col md="4">
-                <Card key={book.bookId} border='dark'>
+              <Col md="4" key={book.bookId}>
+                <Card border='dark'>
                   {book.image ? <Card.Img src={book.image} alt={`The cover for ${book.title}`} variant='top' /> : null}
                   <Card.Body>
                     <Card.Title>{book.title}</Card.Title>
@@ -104,8 +114,8 @@ const SavedBooks = () => {
           })}
         </Row>
       </Container>
-    </>
-  );
+    </>);
 };
+
 
 export default SavedBooks;

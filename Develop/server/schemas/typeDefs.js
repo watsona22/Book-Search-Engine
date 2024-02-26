@@ -4,10 +4,10 @@ const typeDefs = `
     username: String
     email: String
     bookcount: Int
-    savedBooks: [bookSchema]
+    savedBooks: [Book]
   }  
   type Book {
-   book.id: ID!
+   book_id: ID!
    authors: [String]
    description: String!
    title: String!
@@ -18,20 +18,21 @@ const typeDefs = `
   }
   type Auth {
    token: ID!
-   user: [userSchema]
+   user: User
   }
   
     # The Query type is built-in to GraphQL, so we only need to extend it to include which kinds of information we plan to request in our application
     # Important for useQuery: We define our Query type to inform our entry points
+
     type Query {
-      me: [userSchema]!
+      me: User
     }
   
     type Mutation {
         login(email: String!, password: String!): Auth
         addUser(username: String!, email: String!, password: String!): Auth
-        saveBook(authors: [String] , description: String!, title: String!, bookId: ID!, image: String, link: String): [userSchema]
-        removeBook(bookId: ID!): [userSchema]
+        saveBook(authors: [String], description: String!, title: String!, bookId: ID!, image: String, link: String): User
+        removeBook(bookId: ID!): User
     }
 `;
 module.exports = typeDefs;
